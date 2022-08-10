@@ -1,0 +1,4 @@
+{
+  "ignorePaths": ["node_modules", ".gitignore", ".prettierrc"],
+  "words": ["commitlint", "fcalle", "nest", "nestjs", "savi", "valassis"]
+}

@@ -1,0 +1,16 @@
+{
+  "branches": ["master"],
+  "ci": false,
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/git",
+      {
+        "message": "chore(release): ${nextRelease.version}"
+      }
+    ]
+  ],
+  "repositoryUrl": "git@github.com:valassis-fcalle/savi-intranet-backend.git"
+}
