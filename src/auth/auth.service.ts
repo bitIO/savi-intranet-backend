@@ -6,10 +6,20 @@ import { AuthDto } from './dto';
 @Injectable()
 class AuthService {
   constructor(private prisma: PrismaService) {}
-  signIn() {
-    return {
-      msg: 'I am signed in',
-    };
+  async signIn(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (!user) {
+      throw new ForbiddenException('Invalid credentials');
+    }
+    if (hash(dto.password) !== user.hash) {
+      throw new ForbiddenException('Invalid credentials');
+    }
+
+    return user;
   }
 
   async signUp(dto: AuthDto) {
