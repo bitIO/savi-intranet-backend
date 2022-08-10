@@ -10,6 +10,7 @@
     "commitlint",
     "cuid",
     "datasource",
+    "datasources",
     "fcalle",
     "nest",
     "nestjs",
