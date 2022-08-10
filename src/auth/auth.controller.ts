@@ -13,7 +13,6 @@ class AuthController {
 
   @Post('signup')
   signUp(@Body() dto: AuthDto) {
-    console.log('dto :>> ', dto);
     return this.authService.signUp(dto);
   }
 }
