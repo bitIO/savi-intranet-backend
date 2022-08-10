@@ -1,11 +1,17 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as hash from 'object-hash';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 @Injectable()
 class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private config: ConfigService,
+  ) {}
   async signIn(dto: AuthDto) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -19,7 +25,7 @@ class AuthService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    return user;
+    return await this.signToken(user.id, user.email);
   }
 
   async signUp(dto: AuthDto) {
@@ -40,6 +46,25 @@ class AuthService {
         throw error;
       }
     }
+  }
+
+  async signToken(
+    userId: number,
+    email: string,
+  ): Promise<{ access_token: string }> {
+    const payload = {
+      email,
+      sub: userId,
+    };
+
+    const token = await this.jwt.sign(payload, {
+      expiresIn: '60m',
+      secret: this.config.get('JWT_SECRET'),
+    });
+
+    return {
+      access_token: token,
+    };
   }
 }
 
