@@ -13,6 +13,7 @@
     "datasources",
     "dto",
     "fcalle",
+    "jwt",
     "nest",
     "nestjs",
     "savi",
