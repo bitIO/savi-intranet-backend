@@ -1,4 +1,19 @@
 {
-  "ignorePaths": ["node_modules", ".gitignore", ".prettierrc"],
-  "words": ["commitlint", "fcalle", "nest", "nestjs", "savi", "valassis"]
+  "ignorePaths": [
+    "node_modules",
+    ".gitignore",
+    ".prettierrc",
+    "prisma/migrations"
+  ],
+  "words": [
+    "autoincrement",
+    "commitlint",
+    "cuid",
+    "datasource",
+    "fcalle",
+    "nest",
+    "nestjs",
+    "savi",
+    "valassis"
+  ]
 }
