@@ -11,12 +11,20 @@ export class UserService {
       data: {
         ...dto,
       },
+      select: {
+        HolidayApproval: true,
+        HolidayPerUser: true,
+        createdAt: true,
+        email: true,
+        firstName: true,
+        id: true,
+        lastName: true,
+        updatedAt: true,
+      },
       where: {
         id: userId,
       },
     });
-
-    delete user.hash;
 
     return user;
   }
