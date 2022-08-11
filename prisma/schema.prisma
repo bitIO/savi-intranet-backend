@@ -11,13 +11,15 @@ datasource db {
 }
 
 model User {
-  id              Int               @id @default(autoincrement())
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  email           String            @unique
-  hash            String
-  firstName       String?
-  lastName        String?
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email     String  @unique
+  hash      String
+  firstName String?
+  lastName  String?
+
   HolidayPerUser  HolidayPerUser[]
   HolidayApproval HolidayApproval[]
 
@@ -25,13 +27,15 @@ model User {
 }
 
 model Holiday {
-  id               Int               @id @default(autoincrement())
-  start            DateTime
-  end              DateTime
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  start DateTime
+  end   DateTime
+
   userId           String
-  HolidayPerUser   HolidayPerUser?   @relation(fields: [holidayPerUserId], references: [id])
+  HolidayPerUser   HolidayPerUser?   @relation(fields: [holidayPerUserId], references: [id], onDelete: Cascade)
   holidayPerUserId Int?
   HolidayApproval  HolidayApproval[]
 
@@ -39,18 +43,25 @@ model Holiday {
 }
 
 model HolidayPerUser {
-  id                Int       @id @default(autoincrement())
-  user              User      @relation(fields: [userId], references: [id])
-  year              Int
-  remaining         Int
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year      Int
+  remaining Int
+
   userId            Int
   requestedHolidays Holiday[]
 }
 
 model HolidayApproval {
-  id         Int     @id @default(autoincrement())
-  holiday    Holiday @relation(fields: [holidayId], references: [id])
-  approvedBy User    @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   holidayId  Int
+  holiday    Holiday @relation(fields: [holidayId], references: [id], onDelete: Cascade)
   userId     Int
+  approvedBy User    @relation(fields: [userId], references: [id])
 }
