@@ -34,4 +34,17 @@ export class HolidayService {
       }
     }
   }
+
+  async getHolidays() {
+    return this.prisma.holiday.findMany({
+      select: {
+        createdAt: true,
+        end: true,
+        id: true,
+        start: true,
+        updatedAt: true,
+        userId: true,
+      },
+    });
+  }
 }

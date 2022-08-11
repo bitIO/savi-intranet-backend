@@ -11,7 +11,7 @@ export class HolidayController {
 
   @Get()
   getHolidays() {
-    return null;
+    return this.holidayService.getHolidays();
   }
 
   @Get('user')

@@ -155,6 +155,7 @@ describe('App E2E', () => {
         .expectBodyContains(dto.start)
         .expectBodyContains(dto.end);
     });
+
     it('should fail for the same holiday request', () => {
       return pactum
         .spec()
@@ -165,6 +166,18 @@ describe('App E2E', () => {
         .withBody(dto)
         .expectStatus(409)
         .expectBodyContains('Request already created');
+    });
+
+    it('should retrieve all the requests', () => {
+      return pactum
+        .spec()
+        .get('/holidays')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .withBody(dto)
+        .expectStatus(200)
+        .expectJsonLength(1);
     });
   });
 });
