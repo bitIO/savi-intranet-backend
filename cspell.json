@@ -16,6 +16,7 @@
     "jwt",
     "nest",
     "nestjs",
+    "pactum",
     "savi",
     "signin",
     "valassis"
