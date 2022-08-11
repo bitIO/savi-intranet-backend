@@ -16,9 +16,8 @@ export class PrismaService extends PrismaClient {
 
   cleanDatabase() {
     return this.$transaction([
-      this.holiday.deleteMany(),
-      this.holidayApproval.deleteMany(),
-      this.holidayPerUser.deleteMany(),
+      this.holidayRequests.deleteMany(),
+      this.userHolidays.deleteMany(),
       this.user.deleteMany(),
     ]);
   }

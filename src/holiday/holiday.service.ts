@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { Status } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateHolidayDto } from './dto';
@@ -7,20 +8,20 @@ import { CreateHolidayDto } from './dto';
 export class HolidayService {
   constructor(private prisma: PrismaService) {}
 
-  async createHoliday(userId: number, dto: CreateHolidayDto) {
+  async createHolidayRequest(userId: number, dto: CreateHolidayDto) {
     try {
-      const data = await this.prisma.holiday.create({
+      const data = await this.prisma.holidayRequests.create({
         data: {
           end: dto.end,
+          requestorId: userId,
           start: dto.start,
-          userId,
         },
         select: {
           createdAt: true,
           end: true,
           id: true,
+          requestorId: true,
           start: true,
-          userId: true,
         },
       });
 
@@ -38,22 +39,37 @@ export class HolidayService {
   async getHolidays(userId?: number) {
     const where: any = {};
     if (userId) {
-      where.userId = {
+      where.requestorId = {
         equals: userId,
       };
     }
-    return this.prisma.holiday.findMany({
+    return this.prisma.holidayRequests.findMany({
       select: {
-        comments: true,
+        HolidayRequestsComments: true,
         createdAt: true,
         end: true,
         id: true,
+        requestorId: true,
         start: true,
         status: true,
         updatedAt: true,
-        userId: true,
       },
       where,
+    });
+  }
+
+  async changeStatus(
+    approverId: number,
+    holidayRequestId: number,
+    status: Status,
+  ) {
+    this.prisma.holidayRequests.update({
+      data: {
+        status,
+      },
+      where: {
+        id: holidayRequestId,
+      },
     });
   }
 }

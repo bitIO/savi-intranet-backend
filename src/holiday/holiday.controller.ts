@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -28,7 +29,20 @@ export class HolidayController {
   }
 
   @Post()
-  createHolidays(@GetUser('id') userId: number, @Body() dto: CreateHolidayDto) {
-    return this.holidayService.createHoliday(userId, dto);
+  createHolidaysRequest(
+    @GetUser('id') userId: number,
+    @Body() dto: CreateHolidayDto,
+  ) {
+    return this.holidayService.createHolidayRequest(userId, dto);
+  }
+
+  @Post(':id/comments')
+  commentHolidayRequest() {
+    throw new Error('Not implemented');
+  }
+
+  @Patch(':id/status')
+  updateStateHolidayRequest() {
+    throw new Error('Not implemented');
   }
 }

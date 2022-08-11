@@ -12,8 +12,7 @@ export class UserService {
         ...dto,
       },
       select: {
-        HolidayApproval: true,
-        HolidayPerUser: true,
+        UserHolidays: true,
         createdAt: true,
         email: true,
         firstName: true,
