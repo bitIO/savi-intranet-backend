@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
-import { CreateHolidayDto } from './dto';
+import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { HolidayService } from './holiday.service';
 
 @UseGuards(JwtGuard)
@@ -37,8 +37,12 @@ export class HolidayController {
   }
 
   @Post(':id/comments')
-  commentHolidayRequest() {
-    throw new Error('Not implemented');
+  commentHolidayRequest(@Body() dto: CommentHolidayRequestDto) {
+    return this.holidayService.commentHolidayRequest(
+      dto.userId,
+      dto.holidayRequestId,
+      dto.comment,
+    );
   }
 
   @Patch(':id/status')

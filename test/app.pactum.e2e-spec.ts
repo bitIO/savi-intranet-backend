@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
-import { CreateHolidayDto } from '../src/holiday/dto';
+import { CommentHolidayRequestDto, CreateHolidayDto } from '../src/holiday/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto } from '../src/user/dto';
 
@@ -154,85 +154,103 @@ describe('App E2E', () => {
     });
   });
 
-  describe('Holiday', () => {
-    const start = new Date();
-    const end = new Date();
-    end.setMonth(start.getMonth() + 1);
-    const dto: CreateHolidayDto = {
-      end,
-      start,
-    };
+  describe('Holiday Requests', () => {
+    describe('Create', () => {
+      const start = new Date();
+      const end = new Date();
+      end.setMonth(start.getMonth() + 1);
+      const dto: CreateHolidayDto = {
+        end,
+        start,
+      };
 
-    it('should create a holiday request', () => {
-      return pactum
-        .spec()
-        .post('/holidays')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(201)
-        .expectBodyContains(dto.start)
-        .expectBodyContains(dto.end);
+      it('should create a holiday request', () => {
+        return pactum
+          .spec()
+          .post('/holidays')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBodyContains(dto.start)
+          .expectBodyContains(dto.end);
+      });
+
+      it('should fail for the same holiday request', () => {
+        return pactum
+          .spec()
+          .post('/holidays')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(409)
+          .expectBodyContains('Request already created');
+      });
+
+      it('should retrieve my holiday requests', () => {
+        return pactum
+          .spec()
+          .get('/holidays')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
     });
 
-    it('should fail for the same holiday request', () => {
-      return pactum
-        .spec()
-        .post('/holidays')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(409)
-        .expectBodyContains('Request already created');
+    describe('Read', () => {
+      it('should retrieve holiday requests for user', () => {
+        return pactum
+          .spec()
+          .get('/holidays/user/1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+
+      it('should retrieve empty array for non existing user', () => {
+        return pactum
+          .spec()
+          .get('/holidays/user/-1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(0);
+      });
+
+      it('should retrieve all the requests', () => {
+        return pactum
+          .spec()
+          .get('/holidays')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
     });
 
-    it('should retrieve my holiday requests', () => {
-      return pactum
-        .spec()
-        .get('/holidays')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .expectStatus(200)
-        .expectJsonLength(1);
-    });
+    describe('Update', () => {
+      const dto: CommentHolidayRequestDto = {
+        comment: 'Lorem ipsum',
+        holidayRequestId: 1,
+        userId: 1,
+      };
 
-    it('should retrieve holiday requests for user', () => {
-      return pactum
-        .spec()
-        .get('/holidays/user/1')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(200)
-        .expectJsonLength(1);
-    });
-
-    it('should retrieve empty array for non existing user', () => {
-      return pactum
-        .spec()
-        .get('/holidays/user/-1')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(200)
-        .expectJsonLength(0);
-    });
-
-    it('should retrieve all the requests', () => {
-      return pactum
-        .spec()
-        .get('/holidays')
-        .withHeaders({
-          Authorization: 'Bearer $S{userAt}',
-        })
-        .withBody(dto)
-        .expectStatus(200)
-        .expectJsonLength(1);
+      it('should comment on request', () => {
+        pactum
+          .spec()
+          .post('/holidays/1/comments')
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBody(dto.comment);
+      });
     });
   });
 });

@@ -58,6 +58,20 @@ export class HolidayService {
     });
   }
 
+  async commentHolidayRequest(
+    userId: number,
+    holidayRequestId: number,
+    comment: string,
+  ) {
+    return this.prisma.holidayRequestsComments.create({
+      data: {
+        comment,
+        holidayRequestId,
+        userId,
+      },
+    });
+  }
+
   async changeStatus(
     approverId: number,
     holidayRequestId: number,
