@@ -109,6 +109,8 @@ describe('App E2E', () => {
             .withHeaders({
               Authorization: 'Bearer $S{userAt}',
             })
+            .expectJsonLength('role', 1)
+            .expectJson('role', ['USER'])
             .expectStatus(200);
         });
       });

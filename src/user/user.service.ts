@@ -19,6 +19,7 @@ export class UserService {
         firstName: true,
         id: true,
         lastName: true,
+        role: true,
         updatedAt: true,
       },
       where: {

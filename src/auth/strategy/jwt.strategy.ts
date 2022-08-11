@@ -27,6 +27,7 @@ class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         firstName: true,
         id: true,
         lastName: true,
+        role: true,
         updatedAt: true,
       },
       where: {
