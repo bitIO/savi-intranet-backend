@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -17,7 +18,10 @@ describe('App E2E', () => {
       }),
     );
     await app.init();
+    await app.listen(3333);
     await app.get(PrismaService).cleanDatabase();
+
+    pactum.request.setBaseUrl('http://localhost:3333');
   });
 
   afterAll(() => {
