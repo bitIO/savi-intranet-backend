@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
+import { CreateHolidayDto } from '../src/holiday/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto } from '../src/user/dto';
 
@@ -20,10 +21,10 @@ describe('App E2E', () => {
       }),
     );
     await app.init();
-    await app.listen(3333);
+    await app.listen(3334);
     await app.get(PrismaService).cleanDatabase();
 
-    pactum.request.setBaseUrl('http://localhost:3333');
+    pactum.request.setBaseUrl('http://localhost:3334');
   });
 
   afterAll(() => {
@@ -130,6 +131,40 @@ describe('App E2E', () => {
             .expectBodyContains(dto.email);
         });
       });
+    });
+  });
+
+  describe('Holiday', () => {
+    const start = new Date();
+    const end = new Date();
+    end.setMonth(start.getMonth() + 1);
+    const dto: CreateHolidayDto = {
+      end,
+      start,
+    };
+
+    it('should create a holiday request', () => {
+      return pactum
+        .spec()
+        .post('/holidays')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .withBody(dto)
+        .expectStatus(201)
+        .expectBodyContains(dto.start)
+        .expectBodyContains(dto.end);
+    });
+    it('should fail for the same holiday request', () => {
+      return pactum
+        .spec()
+        .post('/holidays')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .withBody(dto)
+        .expectStatus(409)
+        .expectBodyContains('Request already created');
     });
   });
 });
