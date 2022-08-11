@@ -34,7 +34,7 @@ model Holiday {
   start DateTime
   end   DateTime
 
-  userId           String
+  userId           Int
   HolidayPerUser   HolidayPerUser?   @relation(fields: [holidayPerUserId], references: [id], onDelete: Cascade)
   holidayPerUserId Int?
   HolidayApproval  HolidayApproval[]
