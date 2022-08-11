@@ -39,6 +39,7 @@ model Holiday {
   holidayPerUserId Int?
   HolidayApproval  HolidayApproval[]
 
+  @@unique([userId, start, end])
   @@map("holidays")
 }
 
