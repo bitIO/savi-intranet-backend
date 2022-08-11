@@ -34,6 +34,7 @@ describe('App E2E', () => {
       email: 'fcalle@savispain.es',
       password: '1234',
     };
+
     describe('Signup', () => {
       it('should throw if email empty', () => {
         return pactum
@@ -62,6 +63,38 @@ describe('App E2E', () => {
           .post('/auth/signup')
           .withBody(dto)
           .expectStatus(201);
+      });
+    });
+
+    describe('Signin', () => {
+      it('should throw if email empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody({
+            password: dto.password,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if password empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody({
+            email: dto.email,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if no body provided', () => {
+        return pactum.spec().post('/auth/signin').expectStatus(400);
+      });
+      it('should signin', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody(dto)
+          .expectStatus(202)
+          .stores('userAt', 'access_token');
       });
     });
   });
