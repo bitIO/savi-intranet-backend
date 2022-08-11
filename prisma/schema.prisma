@@ -16,6 +16,12 @@ enum Role {
   APPROVE
 }
 
+enum Status {
+  PENDING
+  REJECTED
+  APPROVED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -38,8 +44,10 @@ model Holiday {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  start DateTime
-  end   DateTime
+  start    DateTime
+  end      DateTime
+  status   Status   @default(PENDING)
+  comments String[]
 
   userId           Int
   HolidayPerUser   HolidayPerUser?   @relation(fields: [holidayPerUserId], references: [id], onDelete: Cascade)

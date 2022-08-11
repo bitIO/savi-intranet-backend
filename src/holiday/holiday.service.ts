@@ -44,10 +44,12 @@ export class HolidayService {
     }
     return this.prisma.holiday.findMany({
       select: {
+        comments: true,
         createdAt: true,
         end: true,
         id: true,
         start: true,
+        status: true,
         updatedAt: true,
         userId: true,
       },
