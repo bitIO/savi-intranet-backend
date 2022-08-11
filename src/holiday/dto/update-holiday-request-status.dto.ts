@@ -1,6 +1,6 @@
 import { Status } from '@prisma/client';
 import { IsNumber, IsOptional, IsPositive } from 'class-validator';
-import { IsNotSameStatus, ValidStatus } from '../decorator';
+import { IsNotSameStatus, IsValidRequest, ValidStatus } from '../decorator';
 
 export class UpdateHolidayRequestStatusDto {
   @IsNumber()
@@ -8,9 +8,7 @@ export class UpdateHolidayRequestStatusDto {
   // @IsValidValidator() TODO: user exist and role is valid
   validatorId: number;
 
-  @IsNumber()
-  @IsPositive()
-  // @IsValidRequest() TODO: request exists
+  @IsValidRequest()
   holidayRequestId: number;
 
   @IsNotSameStatus()

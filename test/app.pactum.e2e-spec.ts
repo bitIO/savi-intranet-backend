@@ -253,6 +253,21 @@ describe('App E2E', () => {
       });
 
       describe('change status', () => {
+        it('should fail on invalid request id', () => {
+          const dto: UpdateHolidayRequestStatusDto = {
+            comment: 'Lorem ipsum',
+            holidayRequestId: 100,
+            status: 'APPROVED',
+            validatorId: 1,
+          };
+          pactum
+            .spec()
+            .post('/holidays/1/validations')
+            .withBody(dto)
+            .expectStatus(400)
+            .expectBodyContains('Invalid status');
+        });
+
         it('should fail on invalid status', () => {
           const dto: UpdateHolidayRequestStatusDto = {
             comment: 'Lorem ipsum',
