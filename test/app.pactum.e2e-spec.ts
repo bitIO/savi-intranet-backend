@@ -133,6 +133,24 @@ describe('App E2E', () => {
             .expectBodyContains(dto.email);
         });
       });
+
+      describe('Switch role', () => {
+        it('should become admin', () => {
+          const dto: EditUserDto = {
+            role: ['USER', 'ADMIN'],
+          };
+          return pactum
+            .spec()
+            .patch('/users/1/roles')
+            .withHeaders({
+              Authorization: 'Bearer $S{userAt}',
+            })
+            .withBody(dto)
+            .expectStatus(200)
+            .expectBodyContains(dto.role)
+            .expectJsonMatch('role', ['USER', 'ADMIN']);
+        });
+      });
     });
   });
 

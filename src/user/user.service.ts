@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EditUserDto } from './dto';
 
@@ -28,5 +28,13 @@ export class UserService {
     });
 
     return user;
+  }
+
+  async switchRole(userId: number, dto: EditUserDto) {
+    if (!dto.role) {
+      throw new BadRequestException('No roles to switch to');
+    }
+
+    return this.editUser(userId, dto);
   }
 }

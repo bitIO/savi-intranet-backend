@@ -19,4 +19,9 @@ export class UserController {
   editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
     return this.userService.editUser(userId, dto);
   }
+
+  @Patch('/:id/roles')
+  switchRoles(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
+    return this.userService.switchRole(userId, dto);
+  }
 }

@@ -1,4 +1,6 @@
+import { Role } from '@prisma/client';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { ValidRole } from '../decorator';
 
 export class EditUserDto {
   @IsEmail()
@@ -12,4 +14,8 @@ export class EditUserDto {
   @IsString()
   @IsOptional()
   lastName?: string;
+
+  @ValidRole()
+  @IsOptional()
+  role?: Role[];
 }
