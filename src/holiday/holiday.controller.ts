@@ -4,13 +4,13 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
 import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
+import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
 import { HolidayService } from './holiday.service';
 
 @UseGuards(JwtGuard)
@@ -45,8 +45,13 @@ export class HolidayController {
     );
   }
 
-  @Patch(':id/status')
-  updateStateHolidayRequest() {
-    throw new Error('Not implemented');
+  @Post(':id/validations')
+  updateHolidayRequestStatus(@Body() dto: UpdateHolidayRequestStatusDto) {
+    return this.holidayService.updateHolidayRequestStatus(
+      dto.validatorId,
+      dto.comment,
+      dto.holidayRequestId,
+      dto.status,
+    );
   }
 }

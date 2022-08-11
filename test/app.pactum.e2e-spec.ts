@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
+import { UpdateHolidayRequestStatusDto } from 'src/holiday/dto/update-holiday-request-status.dto';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { CommentHolidayRequestDto, CreateHolidayDto } from '../src/holiday/dto';
@@ -237,19 +238,84 @@ describe('App E2E', () => {
     });
 
     describe('Update', () => {
-      const dto: CommentHolidayRequestDto = {
-        comment: 'Lorem ipsum',
-        holidayRequestId: 1,
-        userId: 1,
-      };
-
       it('should comment on request', () => {
+        const dto: CommentHolidayRequestDto = {
+          comment: 'Lorem ipsum',
+          holidayRequestId: 1,
+          userId: 1,
+        };
         pactum
           .spec()
           .post('/holidays/1/comments')
           .withBody(dto)
           .expectStatus(201)
           .expectBody(dto.comment);
+      });
+
+      describe('change status', () => {
+        it('should fail on invalid status', () => {
+          const dto: UpdateHolidayRequestStatusDto = {
+            comment: 'Lorem ipsum',
+            holidayRequestId: 1,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            status: 'VALID',
+            validatorId: 1,
+          };
+          pactum
+            .spec()
+            .post('/holidays/1/validations')
+            .withBody(dto)
+            .expectStatus(400)
+            .expectBodyContains('Invalid status');
+        });
+
+        it('should reject request', () => {
+          const dto: UpdateHolidayRequestStatusDto = {
+            comment: 'Lorem ipsum',
+            holidayRequestId: 1,
+            status: 'REJECTED',
+            validatorId: 1,
+          };
+          pactum
+            .spec()
+            .post('/holidays/1/validations')
+            .withBody(dto)
+            .expectStatus(201)
+            .expectBody(dto.status)
+            .expectBody(dto.comment);
+        });
+
+        it('should fail on same status request', () => {
+          const dto: UpdateHolidayRequestStatusDto = {
+            comment: 'Lorem ipsum',
+            holidayRequestId: 1,
+            status: 'REJECTED',
+            validatorId: 1,
+          };
+          pactum
+            .spec()
+            .post('/holidays/1/validations')
+            .withBody(dto)
+            .expectStatus(400)
+            .expectBodyContains('Invalid status');
+        });
+
+        it('should approve request', () => {
+          const dto: UpdateHolidayRequestStatusDto = {
+            comment: 'Lorem ipsum',
+            holidayRequestId: 1,
+            status: 'APPROVED',
+            validatorId: 1,
+          };
+          pactum
+            .spec()
+            .post('/holidays/1/validations')
+            .withBody(dto)
+            .expectStatus(201)
+            .expectBody(dto.status)
+            .expectBody(dto.comment);
+        });
       });
     });
   });

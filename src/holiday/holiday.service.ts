@@ -36,6 +36,14 @@ export class HolidayService {
     }
   }
 
+  async getHolidayRequest(id: number) {
+    return this.prisma.holidayRequests.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+  }
+
   async getHolidays(userId?: number) {
     const where: any = {};
     if (userId) {
@@ -46,6 +54,7 @@ export class HolidayService {
     return this.prisma.holidayRequests.findMany({
       select: {
         HolidayRequestsComments: true,
+        HolidayRequestsValidations: true,
         createdAt: true,
         end: true,
         id: true,
@@ -72,12 +81,21 @@ export class HolidayService {
     });
   }
 
-  async changeStatus(
-    approverId: number,
+  async updateHolidayRequestStatus(
+    validatorId: number,
+    comment: string,
     holidayRequestId: number,
     status: Status,
   ) {
-    this.prisma.holidayRequests.update({
+    const validation = await this.prisma.holidayRequestsValidations.create({
+      data: {
+        comment,
+        holidayRequestId,
+        status,
+        validatorId,
+      },
+    });
+    const holidayRequest = await this.prisma.holidayRequests.update({
       data: {
         status,
       },
@@ -85,5 +103,10 @@ export class HolidayService {
         id: holidayRequestId,
       },
     });
+
+    return {
+      holidayRequest,
+      validation,
+    };
   }
 }

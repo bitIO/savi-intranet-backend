@@ -33,10 +33,27 @@ model User {
   lastName  String?
   role      Role[]  @default([USER])
 
-  UserHolidays            UserHolidays[]
-  HolidayRequestsComments HolidayRequestsComments[]
+  UserHolidays               UserHolidays[]
+  HolidayRequestsComments    HolidayRequestsComments[]
+  HolidayRequestsValidations HolidayRequestsValidations[]
 
   @@map("users")
+}
+
+model UserHolidays {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int
+  year              Int             @default(2022)
+  remaining         Int             @default(22)
+  holidayRequests   HolidayRequests @relation(fields: [holidayRequestsId], references: [id])
+  holidayRequestsId Int
+
+  @@unique([userId, year])
+  @@map("user_holidays")
 }
 
 model HolidayRequests {
@@ -49,8 +66,9 @@ model HolidayRequests {
   end         DateTime
   status      Status   @default(PENDING)
 
-  UserHolidays            UserHolidays[]
-  HolidayRequestsComments HolidayRequestsComments[]
+  UserHolidays               UserHolidays[]
+  HolidayRequestsComments    HolidayRequestsComments[]
+  HolidayRequestsValidations HolidayRequestsValidations[]
 
   @@unique([requestorId, start, end])
   @@map("holiday_requests")
@@ -70,18 +88,17 @@ model HolidayRequestsComments {
   @@map("holiday_requests_comments")
 }
 
-model UserHolidays {
+model HolidayRequestsValidations {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int
-  year              Int             @default(2022)
-  remaining         Int             @default(22)
-  holidayRequests   HolidayRequests @relation(fields: [holidayRequestsId], references: [id])
-  holidayRequestsId Int
+  comment          String?
+  holidayRequest   HolidayRequests @relation(fields: [holidayRequestId], references: [id])
+  holidayRequestId Int
+  status           Status          @default(REJECTED)
+  validator        User            @relation(fields: [validatorId], references: [id])
+  validatorId      Int
 
-  @@unique([userId, year])
-  @@map("user_holidays")
+  @@map("holiday_requests_validations")
 }
