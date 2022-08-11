@@ -195,9 +195,32 @@ describe('App E2E', () => {
         .withHeaders({
           Authorization: 'Bearer $S{userAt}',
         })
+        .expectStatus(200)
+        .expectJsonLength(1);
+    });
+
+    it('should retrieve holiday requests for user', () => {
+      return pactum
+        .spec()
+        .get('/holidays/user/1')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
         .withBody(dto)
         .expectStatus(200)
         .expectJsonLength(1);
+    });
+
+    it('should retrieve empty array for non existing user', () => {
+      return pactum
+        .spec()
+        .get('/holidays/user/-1')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .withBody(dto)
+        .expectStatus(200)
+        .expectJsonLength(0);
     });
 
     it('should retrieve all the requests', () => {

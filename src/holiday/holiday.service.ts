@@ -35,7 +35,13 @@ export class HolidayService {
     }
   }
 
-  async getHolidays() {
+  async getHolidays(userId?: number) {
+    const where: any = {};
+    if (userId) {
+      where.userId = {
+        equals: userId,
+      };
+    }
     return this.prisma.holiday.findMany({
       select: {
         createdAt: true,
@@ -45,6 +51,7 @@ export class HolidayService {
         updatedAt: true,
         userId: true,
       },
+      where,
     });
   }
 }

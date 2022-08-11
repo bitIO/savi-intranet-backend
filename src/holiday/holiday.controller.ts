@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
 import { CreateHolidayDto } from './dto';
@@ -14,9 +22,9 @@ export class HolidayController {
     return this.holidayService.getHolidays();
   }
 
-  @Get('user')
-  getHolidaysPerUser(@Param('id') userId: number) {
-    return null;
+  @Get('user/:id')
+  getHolidaysPerUser(@Param('id', ParseIntPipe) userId: number) {
+    return this.holidayService.getHolidays(userId);
   }
 
   @Post()
