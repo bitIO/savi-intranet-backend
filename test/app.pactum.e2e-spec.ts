@@ -97,5 +97,19 @@ describe('App E2E', () => {
           .stores('userAt', 'access_token');
       });
     });
+
+    describe('User', () => {
+      describe('Get me', () => {
+        it('should get current user', () => {
+          return pactum
+            .spec()
+            .get('/users/me')
+            .withHeaders({
+              Authorization: 'Bearer $S{userAt}',
+            })
+            .expectStatus(200);
+        });
+      });
+    });
   });
 });
