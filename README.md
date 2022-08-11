@@ -30,6 +30,12 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Models
+
+### User - Holidays - Approval
+
+![Model](./docs/database/models/user-holidays-approval.png)
+
 ## TODO
 
 - [ ] Replace `object-hash` with `argon2` once is ready for M1
