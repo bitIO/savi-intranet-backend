@@ -1,5 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { Status } from '@prisma/client';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { Role, Status, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateHolidayDto } from './dto';
@@ -36,7 +40,7 @@ export class HolidayService {
     }
   }
 
-  async getHolidayRequest(id: number) {
+  async getHolidayRequestById(id: number) {
     return this.prisma.holidayRequests.findUniqueOrThrow({
       where: {
         id,
@@ -44,7 +48,19 @@ export class HolidayService {
     });
   }
 
-  async getHolidays(userId?: number) {
+  async getHolidaysRequests(loggedUserId: number, userId?: number) {
+    let loggedUse: User;
+    if (!userId || userId !== loggedUserId) {
+      loggedUse = await this.prisma.user.findFirst({
+        where: {
+          id: loggedUserId,
+        },
+      });
+      if (!loggedUse.role.includes(Role.APPROVE)) {
+        throw new ForbiddenException('Access to resource denied');
+      }
+    }
+
     const where: any = {};
     if (userId) {
       where.requestorId = {

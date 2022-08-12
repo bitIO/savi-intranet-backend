@@ -18,7 +18,7 @@ class IsNotSameStatusRule implements ValidatorConstraintInterface {
 
   async validate(status: Status, validationArguments?: ValidationArguments) {
     const dto = validationArguments.object as UpdateHolidayRequestStatusDto;
-    const holidayRequest = await this.holidayService.getHolidayRequest(
+    const holidayRequest = await this.holidayService.getHolidayRequestById(
       dto.holidayRequestId,
     );
     return !(holidayRequest.status === status);

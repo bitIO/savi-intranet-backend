@@ -1,15 +1,30 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
-import { UpdateHolidayRequestStatusDto } from 'src/holiday/dto/update-holiday-request-status.dto';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { CommentHolidayRequestDto, CreateHolidayDto } from '../src/holiday/dto';
+import { UpdateHolidayRequestStatusDto } from '../src/holiday/dto/update-holiday-request-status.dto';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto } from '../src/user/dto';
 
 describe('App E2E', () => {
   let app: INestApplication;
+
+  const dto: AuthDto[] = [
+    {
+      email: 'user@savispain.es',
+      password: '1234',
+    },
+    {
+      email: 'approve@savispain.es',
+      password: '1234',
+    },
+    {
+      email: 'admin@savispain.es',
+      password: '1234',
+    },
+  ];
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,7 +38,21 @@ describe('App E2E', () => {
     );
     await app.init();
     await app.listen(3334);
-    await app.get(PrismaService).cleanDatabase();
+
+    await app.get(PrismaService).holidayRequestsValidations.deleteMany();
+    await app.get(PrismaService).holidayRequestsComments.deleteMany();
+    await app.get(PrismaService).holidayRequests.deleteMany();
+    await app.get(PrismaService).userHolidays.deleteMany();
+    await app.get(PrismaService).user.deleteMany();
+
+    // await app.get(AuthService).signUp({
+    //   email: dto[1].email,
+    //   password: dto[1].password,
+    // });
+    // await app.get(AuthService).signUp({
+    //   email: dto[2].email,
+    //   password: dto[2].password,
+    // });
 
     pactum.request.setBaseUrl('http://localhost:3334');
   });
@@ -32,131 +61,147 @@ describe('App E2E', () => {
     app.close();
   });
 
-  describe('Auth', () => {
-    const dto: AuthDto = {
-      email: 'fcalle@savispain.es',
-      password: '1234',
-    };
-
-    describe('Signup', () => {
-      it('should throw if email empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody({
-            password: dto.password,
-          })
-          .expectStatus(400);
-      });
-      it('should throw if password empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody({
-            email: dto.email,
-          })
-          .expectStatus(400);
-      });
-      it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signup').expectStatus(400);
-      });
-      it('should signup', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody(dto)
-          .expectStatus(201);
-      });
+  describe('Create test users', () => {
+    it('should throw if email empty', () => {
+      return pactum
+        .spec()
+        .post('/auth/signup')
+        .withBody({
+          password: 'password',
+        })
+        .expectStatus(400);
     });
 
-    describe('Signin', () => {
-      it('should throw if email empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody({
-            password: dto.password,
-          })
-          .expectStatus(400);
-      });
-      it('should throw if password empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody({
-            email: dto.email,
-          })
-          .expectStatus(400);
-      });
-      it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signin').expectStatus(400);
-      });
-      it('should signin', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody(dto)
-          .expectStatus(202)
-          .stores('userAt', 'access_token');
-      });
+    it('should throw if password empty', () => {
+      return pactum
+        .spec()
+        .post('/auth/signup')
+        .withBody({
+          email: 'test@test.com',
+        })
+        .expectStatus(400);
     });
 
-    describe('User', () => {
-      describe('Get me', () => {
-        it('should get current user', () => {
-          return pactum
-            .spec()
-            .get('/users/me')
-            .withHeaders({
-              Authorization: 'Bearer $S{userAt}',
-            })
-            .expectJsonLength('role', 1)
-            .expectJson('role', ['USER'])
-            .expectStatus(200);
-        });
-      });
+    it('should throw if no body provided', () => {
+      return pactum.spec().post('/auth/signup').expectStatus(400);
+    });
 
-      describe('Edit user', () => {
-        it('should edit user', () => {
-          const dto: EditUserDto = {
-            email: 'fcalle@savispain.es',
-            firstName: 'Francisco',
-          };
-          return pactum
-            .spec()
-            .patch('/users')
-            .withHeaders({
-              Authorization: 'Bearer $S{userAt}',
-            })
-            .withBody(dto)
-            .expectStatus(200)
-            .expectBodyContains(dto.firstName)
-            .expectBodyContains(dto.email);
-        });
-      });
+    it('should create test user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signup')
+        .withBody(dto[0])
+        .expectStatus(201);
+    });
 
-      describe('Switch role', () => {
-        it('should become admin', () => {
-          const dto: EditUserDto = {
-            role: ['USER', 'ADMIN'],
-          };
-          return pactum
-            .spec()
-            .patch('/users/1/roles')
-            .withHeaders({
-              Authorization: 'Bearer $S{userAt}',
-            })
-            .withBody(dto)
-            .expectStatus(200)
-            .expectBodyContains(dto.role)
-            .expectJsonMatch('role', ['USER', 'ADMIN']);
-        });
-      });
+    it('should create approve user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signup')
+        .withBody(dto[1])
+        .expectStatus(201);
+    });
+
+    it('should create admin user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signup')
+        .withBody(dto[2])
+        .expectStatus(201);
     });
   });
 
-  describe('Holiday Requests', () => {
-    describe('Create', () => {
+  describe('Sign in users', () => {
+    beforeAll(async () => {
+      await app.get(PrismaService).user.update({
+        data: {
+          firstName: 'Approve',
+          lastName: 'Savi',
+          role: ['USER', 'APPROVE'],
+        },
+        where: {
+          email: dto[1].email,
+        },
+      });
+      await app.get(PrismaService).user.update({
+        data: {
+          email: 'admin@savispain.es',
+          firstName: 'Admin',
+          lastName: 'Savi',
+          role: ['USER', 'ADMIN'],
+        },
+        where: {
+          email: dto[2].email,
+        },
+      });
+    });
+
+    it('should throw if email empty', () => {
+      return pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody({
+          password: 'password',
+        })
+        .expectStatus(400);
+    });
+
+    it('should throw if password empty', () => {
+      return pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody({
+          email: 'email@email.es',
+        })
+        .expectStatus(400);
+    });
+
+    it('should throw if no body provided', () => {
+      return pactum.spec().post('/auth/signin').expectStatus(400);
+    });
+
+    it('should sign in user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody(dto[0])
+        .expectStatus(202)
+        .stores('userAt', 'access_token');
+    });
+
+    it('should sign in approve user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody(dto[1])
+        .expectStatus(202)
+        .stores('approveUserAt', 'access_token');
+    });
+
+    it('should sign in admin user', () => {
+      return pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody(dto[2])
+        .expectStatus(202)
+        .stores('adminUserAt', 'access_token');
+    });
+  });
+
+  describe('User', () => {
+    it('should get current user', () => {
+      return pactum
+        .spec()
+        .get('/users/me')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .expectJsonLength('role', 1)
+        .expectJson('role', ['USER'])
+        .expectStatus(200);
+    });
+
+    describe('Create Holiday Request', () => {
       const start = new Date();
       const end = new Date();
       end.setMonth(start.getMonth() + 1);
@@ -190,147 +235,215 @@ describe('App E2E', () => {
           .expectBodyContains('Request already created');
       });
 
-      it('should retrieve my holiday requests', () => {
-        return pactum
-          .spec()
-          .get('/holidays')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200)
-          .expectJsonLength(1);
-      });
-    });
-
-    describe('Read', () => {
-      it('should retrieve holiday requests for user', () => {
-        return pactum
-          .spec()
-          .get('/holidays/user/1')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200)
-          .expectJsonLength(1);
-      });
-
-      it('should retrieve empty array for non existing user', () => {
-        return pactum
-          .spec()
-          .get('/holidays/user/-1')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200)
-          .expectJsonLength(0);
-      });
-
-      it('should retrieve all the requests', () => {
-        return pactum
-          .spec()
-          .get('/holidays')
-          .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
-          })
-          .expectStatus(200)
-          .expectJsonLength(1);
-      });
-    });
-
-    describe('Update', () => {
       it('should comment on request', () => {
         const dto: CommentHolidayRequestDto = {
-          comment: 'Lorem ipsum',
+          comment: 'user comment',
           holidayRequestId: 1,
           userId: 1,
         };
         pactum
           .spec()
           .post('/holidays/1/comments')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
           .withBody(dto)
           .expectStatus(201)
           .expectBody(dto.comment);
       });
+    });
 
-      describe('change status', () => {
-        it('should fail on invalid request id', () => {
-          const dto: UpdateHolidayRequestStatusDto = {
-            comment: 'Lorem ipsum',
-            holidayRequestId: 100,
-            status: 'APPROVED',
-            validatorId: 1,
-          };
-          pactum
-            .spec()
-            .post('/holidays/1/validations')
-            .withBody(dto)
-            .expectStatus(400)
-            .expectBodyContains('Invalid status');
-        });
+    describe('Get holidays request', () => {
+      it('should retrieve my holiday requests', () => {
+        return pactum
+          .spec()
+          .get('/holidays/users/1')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
 
-        it('should fail on invalid status', () => {
-          const dto: UpdateHolidayRequestStatusDto = {
-            comment: 'Lorem ipsum',
-            holidayRequestId: 1,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            status: 'VALID',
-            validatorId: 1,
-          };
-          pactum
-            .spec()
-            .post('/holidays/1/validations')
-            .withBody(dto)
-            .expectStatus(400)
-            .expectBodyContains('Invalid status');
-        });
+      it('should fail retrieving others holiday requests', () => {
+        return pactum
+          .spec()
+          .get('/holidays/users/2')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(403)
+          .expectBodyContains('Access to resource denied');
+      });
+    });
 
-        it('should reject request', () => {
-          const dto: UpdateHolidayRequestStatusDto = {
-            comment: 'Lorem ipsum',
-            holidayRequestId: 1,
-            status: 'REJECTED',
-            validatorId: 1,
-          };
-          pactum
-            .spec()
-            .post('/holidays/1/validations')
-            .withBody(dto)
-            .expectStatus(201)
-            .expectBody(dto.status)
-            .expectBody(dto.comment);
-        });
+    describe('Edit user', () => {
+      it('should edit user', () => {
+        const dto: EditUserDto = {
+          email: 'fcalle@savispain.es',
+          firstName: 'Francisco',
+          lastName: 'Calle Moreno',
+        };
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.email);
+      });
+    });
+  });
 
-        it('should fail on same status request', () => {
-          const dto: UpdateHolidayRequestStatusDto = {
-            comment: 'Lorem ipsum',
-            holidayRequestId: 1,
-            status: 'REJECTED',
-            validatorId: 1,
-          };
-          pactum
-            .spec()
-            .post('/holidays/1/validations')
-            .withBody(dto)
-            .expectStatus(400)
-            .expectBodyContains('Invalid status');
-        });
+  describe('Approve user', () => {
+    it('should retrieve all the requests', () => {
+      return pactum
+        .spec()
+        .get('/holidays')
+        .withHeaders({
+          Authorization: 'Bearer $S{approveUserAt}',
+        })
+        .expectStatus(200)
+        .expectJsonLength(1);
+    });
 
-        it('should approve request', () => {
-          const dto: UpdateHolidayRequestStatusDto = {
-            comment: 'Lorem ipsum',
-            holidayRequestId: 1,
-            status: 'APPROVED',
-            validatorId: 1,
-          };
-          pactum
-            .spec()
-            .post('/holidays/1/validations')
-            .withBody(dto)
-            .expectStatus(201)
-            .expectBody(dto.status)
-            .expectBody(dto.comment);
-        });
+    it('should retrieve holiday requests from other user', () => {
+      return pactum
+        .spec()
+        .get('/holidays/users/1')
+        .withHeaders({
+          Authorization: 'Bearer $S{approveUserAt}',
+        })
+        .expectStatus(200)
+        .expectJsonLength(1);
+    });
+
+    it('should retrieve empty array for non existing user', () => {
+      return pactum
+        .spec()
+        .get('/holidays/users/-1')
+        .withHeaders({
+          Authorization: 'Bearer $S{approveUserAt}',
+        })
+        .expectStatus(200)
+        .expectJsonLength(0);
+    });
+
+    describe('change status', () => {
+      it('should fail on invalid request id', () => {
+        const dto: UpdateHolidayRequestStatusDto = {
+          comment: 'Lorem ipsum',
+          holidayRequestId: 100,
+          status: 'APPROVED',
+          validatorId: 1,
+        };
+        pactum
+          .spec()
+          .post('/holidays/1/validations')
+          .withHeaders({
+            Authorization: 'Bearer $S{approveUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(400)
+          .expectBodyContains('Invalid status');
+      });
+
+      it('should fail on invalid status', () => {
+        const dto: UpdateHolidayRequestStatusDto = {
+          comment: 'Lorem ipsum',
+          holidayRequestId: 1,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          status: 'VALID',
+          validatorId: 1,
+        };
+        pactum
+          .spec()
+          .post('/holidays/1/validations')
+          .withHeaders({
+            Authorization: 'Bearer $S{approveUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(400)
+          .expectBodyContains('Invalid status');
+      });
+
+      it('should reject request', () => {
+        const dto: UpdateHolidayRequestStatusDto = {
+          comment: 'Project requirement',
+          holidayRequestId: 1,
+          status: 'REJECTED',
+          validatorId: 1,
+        };
+        pactum
+          .spec()
+          .post('/holidays/1/validations')
+          .withHeaders({
+            Authorization: 'Bearer $S{approveUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBody(dto.status)
+          .expectBody(dto.comment);
+      });
+
+      it('should fail on same status request', () => {
+        const dto: UpdateHolidayRequestStatusDto = {
+          comment: 'Lorem ipsum',
+          holidayRequestId: 1,
+          status: 'REJECTED',
+          validatorId: 1,
+        };
+        pactum
+          .spec()
+          .post('/holidays/1/validations')
+          .withHeaders({
+            Authorization: 'Bearer $S{approveUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(400)
+          .expectBodyContains('Invalid status');
+      });
+
+      it('should approve request', () => {
+        const dto: UpdateHolidayRequestStatusDto = {
+          comment: 'Lorem ipsum',
+          holidayRequestId: 1,
+          status: 'APPROVED',
+          validatorId: 1,
+        };
+        pactum
+          .spec()
+          .post('/holidays/1/validations')
+          .withHeaders({
+            Authorization: 'Bearer $S{approveUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBody(dto.status)
+          .expectBody(dto.comment);
+      });
+    });
+  });
+
+  describe('Admin user', () => {
+    describe('Switch role', () => {
+      it('should add admin role to user', () => {
+        const dto: EditUserDto = {
+          role: ['USER', 'ADMIN'],
+        };
+        return pactum
+          .spec()
+          .patch('/users/1/roles')
+          .withHeaders({
+            Authorization: 'Bearer $S{adminUserAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.role);
       });
     });
   });

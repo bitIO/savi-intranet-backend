@@ -16,7 +16,7 @@ class IsValidRequestRule implements ValidatorConstraintInterface {
 
   async validate(holidayRequestId: number) {
     try {
-      const holidayRequest = await this.holidayService.getHolidayRequest(
+      const holidayRequest = await this.holidayService.getHolidayRequestById(
         holidayRequestId,
       );
       return holidayRequest !== undefined && holidayRequest !== null;
