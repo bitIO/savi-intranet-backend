@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { GetUser, Roles } from '../auth/decorator';
 import { JwtGuard, RolesGuard } from '../auth/guard';
@@ -14,6 +15,7 @@ import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
 import { HolidayService } from './holiday.service';
 
+@ApiTags('holiday')
 @UseGuards(JwtGuard)
 @Controller('holidays')
 export class HolidayController {
