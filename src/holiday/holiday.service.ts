@@ -98,9 +98,9 @@ export class HolidayService {
   }
 
   async updateHolidayRequestStatus(
+    holidayRequestId: number,
     validatorId: number,
     comment: string,
-    holidayRequestId: number,
     status: Status,
   ) {
     const validation = await this.prisma.holidayRequestsValidations.create({

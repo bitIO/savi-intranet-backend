@@ -1,14 +1,22 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
 import { GetUser, Roles } from '../auth/decorator';
-import { JwtGuard, RolesGuard } from '../auth/guard';
+import { JwtAccessGuard, RolesGuard } from '../auth/guard';
 import { EditUserDto } from './dto';
 import { UserService } from './user.service';
 
 @ApiBearerAuth()
 @ApiTags('user')
-@UseGuards(JwtGuard)
+@UseGuards(JwtAccessGuard)
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -23,10 +31,13 @@ export class UserController {
     return this.userService.editUser(userId, dto);
   }
 
-  @Patch('/:id/roles')
+  @Patch('/:userId/roles')
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  switchRoles(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
+  switchRoles(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() dto: EditUserDto,
+  ) {
     return this.userService.switchRole(userId, dto);
   }
 }

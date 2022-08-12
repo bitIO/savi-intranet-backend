@@ -12,6 +12,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
   useContainer(app.select(AppModule), {
     fallbackOnErrors: true,
   });

@@ -27,11 +27,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email     String  @unique
-  hash      String
-  firstName String?
-  lastName  String?
-  role      Role[]  @default([USER])
+  email        String  @unique
+  hash         String
+  firstName    String?
+  lastName     String?
+  refreshToken String?
+  role         Role[]  @default([USER])
 
   UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
@@ -80,9 +81,9 @@ model HolidayRequestsComments {
   updatedAt DateTime @updatedAt
 
   comment          String
-  holidayRequest   HolidayRequests @relation(fields: [holidayRequestId], references: [id])
+  holidayRequest   HolidayRequests @relation(fields: [holidayRequestId], references: [id], onDelete: Cascade)
   holidayRequestId Int
-  user             User            @relation(fields: [userId], references: [id])
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           Int
 
   @@map("holiday_requests_comments")
@@ -94,10 +95,10 @@ model HolidayRequestsValidations {
   updatedAt DateTime @updatedAt
 
   comment          String?
-  holidayRequest   HolidayRequests @relation(fields: [holidayRequestId], references: [id])
+  holidayRequest   HolidayRequests @relation(fields: [holidayRequestId], references: [id], onDelete: Cascade)
   holidayRequestId Int
   status           Status          @default(REJECTED)
-  validator        User            @relation(fields: [validatorId], references: [id])
+  validator        User            @relation(fields: [validatorId], references: [id], onDelete: Cascade)
   validatorId      Int
 
   @@map("holiday_requests_validations")

@@ -10,13 +10,13 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { GetUser, Roles } from '../auth/decorator';
-import { JwtGuard, RolesGuard } from '../auth/guard';
+import { JwtAccessGuard, RolesGuard } from '../auth/guard';
 import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
 import { HolidayService } from './holiday.service';
 
 @ApiTags('holiday')
-@UseGuards(JwtGuard)
+@UseGuards(JwtAccessGuard)
 @Controller('holidays')
 export class HolidayController {
   constructor(private holidayService: HolidayService) {}
@@ -44,23 +44,26 @@ export class HolidayController {
     return this.holidayService.createHolidayRequest(userId, dto);
   }
 
-  @Post(':id/comments')
-  commentHolidayRequest(@Body() dto: CommentHolidayRequestDto) {
+  @Post(':holidayRequestId/comments')
+  commentHolidayRequest(
+    @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
+    @Body() dto: CommentHolidayRequestDto,
+  ) {
     return this.holidayService.commentHolidayRequest(
       dto.userId,
-      dto.holidayRequestId,
+      holidayRequestId,
       dto.comment,
     );
   }
 
-  @Post(':id/validations')
+  @Post(':holidayRequestId/validations')
   @Roles(Role.APPROVE)
   @UseGuards(RolesGuard)
   updateHolidayRequestStatus(@Body() dto: UpdateHolidayRequestStatusDto) {
     return this.holidayService.updateHolidayRequestStatus(
+      dto.holidayRequestId,
       dto.validatorId,
       dto.comment,
-      dto.holidayRequestId,
       dto.status,
     );
   }
