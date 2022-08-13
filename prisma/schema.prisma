@@ -67,6 +67,7 @@ model HolidayRequests {
   end           DateTime
   status        Status   @default(PENDING)
   requestedDays Int
+  description   String?
 
   UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
