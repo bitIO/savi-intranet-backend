@@ -62,10 +62,11 @@ model HolidayRequests {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  requestorId Int
-  start       DateTime
-  end         DateTime
-  status      Status   @default(PENDING)
+  requestorId   Int
+  start         DateTime
+  end           DateTime
+  status        Status   @default(PENDING)
+  requestedDays Int
 
   UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
