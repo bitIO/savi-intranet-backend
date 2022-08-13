@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -19,13 +18,14 @@ class IsValidRequestRule implements ValidatorConstraintInterface {
       const holidayRequest = await this.holidayService.getHolidayRequestById(
         holidayRequestId,
       );
+
       return holidayRequest !== undefined && holidayRequest !== null;
     } catch (error) {
       return false;
     }
   }
 
-  defaultMessage(validationArguments?: ValidationArguments): string {
+  defaultMessage(): string {
     return 'Invalid holiday request id';
   }
 }

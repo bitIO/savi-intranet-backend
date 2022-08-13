@@ -35,8 +35,8 @@ export class HolidayService {
         if (error.code === 'P2002') {
           throw new ConflictException('Request already created.');
         }
-        throw error;
       }
+      throw error;
     }
   }
 
@@ -67,6 +67,7 @@ export class HolidayService {
         equals: userId,
       };
     }
+
     return this.prisma.holidayRequests.findMany({
       select: {
         HolidayRequestsComments: true,

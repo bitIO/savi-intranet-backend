@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -11,11 +10,11 @@ import {
 })
 @Injectable()
 class ValidStatusRule implements ValidatorConstraintInterface {
-  async validate(status: Status, validationArguments?: ValidationArguments) {
+  async validate(status: Status) {
     return Object.values(Status).indexOf(status) !== -1;
   }
 
-  defaultMessage(validationArguments?: ValidationArguments): string {
+  defaultMessage(): string {
     return 'Invalid status';
   }
 }

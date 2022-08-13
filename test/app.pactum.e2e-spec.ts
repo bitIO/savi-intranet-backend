@@ -45,15 +45,6 @@ describe('App E2E', () => {
     await app.get(PrismaService).userHolidays.deleteMany();
     await app.get(PrismaService).user.deleteMany();
 
-    // await app.get(AuthService).signUp({
-    //   email: dto[1].email,
-    //   password: dto[1].password,
-    // });
-    // await app.get(AuthService).signUp({
-    //   email: dto[2].email,
-    //   password: dto[2].password,
-    // });
-
     pactum.request.setBaseUrl('http://localhost:3334');
   });
 
@@ -205,7 +196,7 @@ describe('App E2E', () => {
       const start = new Date();
       const end = new Date();
       end.setMonth(start.getMonth() + 1);
-      const dto: CreateHolidayDto = {
+      const createHolidayDto: CreateHolidayDto = {
         end,
         start,
       };
@@ -217,10 +208,10 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .withBody(dto)
+          .withBody(createHolidayDto)
           .expectStatus(201)
-          .expectBodyContains(dto.start)
-          .expectBodyContains(dto.end);
+          .expectBodyContains(createHolidayDto.start)
+          .expectBodyContains(createHolidayDto.end);
       });
 
       it('should fail for the same holiday request', () => {
@@ -230,13 +221,13 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .withBody(dto)
+          .withBody(createHolidayDto)
           .expectStatus(409)
           .expectBodyContains('Request already created');
       });
 
       it('should comment on request', () => {
-        const dto: CommentHolidayRequestDto = {
+        const commentHolidayDto: CommentHolidayRequestDto = {
           comment: 'user comment',
           holidayRequestId: 1,
           userId: 1,
@@ -247,9 +238,9 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .withBody(dto)
+          .withBody(commentHolidayDto)
           .expectStatus(201)
-          .expectBody(dto.comment);
+          .expectBody(commentHolidayDto.comment);
       });
     });
 
@@ -279,21 +270,22 @@ describe('App E2E', () => {
 
     describe('Edit user', () => {
       it('should edit user', () => {
-        const dto: EditUserDto = {
+        const editUserDto: EditUserDto = {
           email: 'fcalle@savispain.es',
           firstName: 'Francisco',
           lastName: 'Calle Moreno',
         };
+
         return pactum
           .spec()
           .patch('/users')
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .withBody(dto)
+          .withBody(editUserDto)
           .expectStatus(200)
-          .expectBodyContains(dto.firstName)
-          .expectBodyContains(dto.email);
+          .expectBodyContains(editUserDto.firstName)
+          .expectBodyContains(editUserDto.email);
       });
     });
   });
@@ -334,7 +326,7 @@ describe('App E2E', () => {
 
     describe('change status', () => {
       it('should fail on invalid request id', () => {
-        const dto: UpdateHolidayRequestStatusDto = {
+        const invalidIdDto: UpdateHolidayRequestStatusDto = {
           comment: 'Lorem ipsum',
           holidayRequestId: 100,
           status: 'APPROVED',
@@ -346,13 +338,13 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{approveUserAt}',
           })
-          .withBody(dto)
+          .withBody(invalidIdDto)
           .expectStatus(400)
           .expectBodyContains('Invalid status');
       });
 
       it('should fail on invalid status', () => {
-        const dto: UpdateHolidayRequestStatusDto = {
+        const invalidStatusDto: UpdateHolidayRequestStatusDto = {
           comment: 'Lorem ipsum',
           holidayRequestId: 1,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -366,13 +358,13 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{approveUserAt}',
           })
-          .withBody(dto)
+          .withBody(invalidStatusDto)
           .expectStatus(400)
           .expectBodyContains('Invalid status');
       });
 
       it('should reject request', () => {
-        const dto: UpdateHolidayRequestStatusDto = {
+        const rejectHolidayRequestDto: UpdateHolidayRequestStatusDto = {
           comment: 'Project requirement',
           holidayRequestId: 1,
           status: 'REJECTED',
@@ -384,14 +376,14 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{approveUserAt}',
           })
-          .withBody(dto)
+          .withBody(rejectHolidayRequestDto)
           .expectStatus(201)
-          .expectBody(dto.status)
-          .expectBody(dto.comment);
+          .expectBody(rejectHolidayRequestDto.status)
+          .expectBody(rejectHolidayRequestDto.comment);
       });
 
       it('should fail on same status request', () => {
-        const dto: UpdateHolidayRequestStatusDto = {
+        const sameStatusRequestDto: UpdateHolidayRequestStatusDto = {
           comment: 'Lorem ipsum',
           holidayRequestId: 1,
           status: 'REJECTED',
@@ -403,13 +395,13 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{approveUserAt}',
           })
-          .withBody(dto)
+          .withBody(sameStatusRequestDto)
           .expectStatus(400)
           .expectBodyContains('Invalid status');
       });
 
       it('should approve request', () => {
-        const dto: UpdateHolidayRequestStatusDto = {
+        const approveRequestDto: UpdateHolidayRequestStatusDto = {
           comment: 'Lorem ipsum',
           holidayRequestId: 1,
           status: 'APPROVED',
@@ -421,10 +413,10 @@ describe('App E2E', () => {
           .withHeaders({
             Authorization: 'Bearer $S{approveUserAt}',
           })
-          .withBody(dto)
+          .withBody(approveRequestDto)
           .expectStatus(201)
-          .expectBody(dto.status)
-          .expectBody(dto.comment);
+          .expectBody(approveRequestDto.status)
+          .expectBody(approveRequestDto.comment);
       });
     });
   });
@@ -432,18 +424,19 @@ describe('App E2E', () => {
   describe('Admin user', () => {
     describe('Switch role', () => {
       it('should add admin role to user', () => {
-        const dto: EditUserDto = {
+        const editUserDto: EditUserDto = {
           role: ['USER', 'ADMIN'],
         };
+
         return pactum
           .spec()
           .patch('/users/1/roles')
           .withHeaders({
             Authorization: 'Bearer $S{adminUserAt}',
           })
-          .withBody(dto)
+          .withBody(editUserDto)
           .expectStatus(200)
-          .expectBodyContains(dto.role);
+          .expectBodyContains(editUserDto.role);
       });
     });
   });

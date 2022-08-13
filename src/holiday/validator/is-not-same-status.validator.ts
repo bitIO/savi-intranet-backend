@@ -5,8 +5,8 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UpdateHolidayRequestStatusDto } from '../dto/update-holiday-request-status.dto';
 import { HolidayService } from '../holiday.service';
+import { IUpdateHolidayRequestStatusDto } from '../types';
 
 @ValidatorConstraint({
   async: true,
@@ -17,14 +17,15 @@ class IsNotSameStatusRule implements ValidatorConstraintInterface {
   constructor(private holidayService: HolidayService) {}
 
   async validate(status: Status, validationArguments?: ValidationArguments) {
-    const dto = validationArguments.object as UpdateHolidayRequestStatusDto;
+    const dto = validationArguments.object as IUpdateHolidayRequestStatusDto;
     const holidayRequest = await this.holidayService.getHolidayRequestById(
       dto.holidayRequestId,
     );
+
     return !(holidayRequest.status === status);
   }
 
-  defaultMessage(validationArguments?: ValidationArguments): string {
+  defaultMessage(): string {
     return 'Requested status is not different';
   }
 }

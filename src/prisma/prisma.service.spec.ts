@@ -16,6 +16,7 @@ describe('PrismaService', () => {
               if (key === 'DATABASE_URL') {
                 return 'postgresql://test:test@localhost:5432/savi-intranet?schema=public';
               }
+
               return null;
             }),
           },

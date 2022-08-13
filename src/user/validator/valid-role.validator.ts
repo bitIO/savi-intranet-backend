@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -29,7 +28,7 @@ class ValidRoleRule implements ValidatorConstraintInterface {
     return !containsInvalid;
   }
 
-  defaultMessage(validationArguments?: ValidationArguments): string {
+  defaultMessage(): string {
     return 'Invalid role(s)';
   }
 }

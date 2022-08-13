@@ -6,6 +6,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as hash from 'object-hash';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
+
 @Injectable()
 class AuthService {
   constructor(
@@ -45,8 +46,8 @@ class AuthService {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken.');
         }
-        throw error;
       }
+      throw error;
     }
   }
 
@@ -60,6 +61,7 @@ class AuthService {
         id: user.id,
       },
     });
+
     return tokens;
   }
 
