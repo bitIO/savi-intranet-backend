@@ -40,6 +40,14 @@ class AuthService {
           email: dto.email,
           hash: hash(dto.password),
         },
+        select: {
+          createdAt: true,
+          email: true,
+          firstName: true,
+          id: true,
+          lastName: true,
+          role: true,
+        },
       });
       await this.userHolidays.create({
         userId: user.id,
