@@ -13,6 +13,7 @@ import { GetUser, Roles } from '../auth/decorator';
 import { JwtAccessGuard, RolesGuard } from '../auth/guard';
 import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
+import { HolidaysQuotaGuard } from './guard';
 import { HolidayService } from './holiday.service';
 
 @ApiTags('holiday')
@@ -36,6 +37,7 @@ export class HolidayController {
     return this.holidayService.getHolidaysRequests(loggedUserId, userId);
   }
 
+  @UseGuards(HolidaysQuotaGuard)
   @Post()
   createHolidaysRequest(
     @GetUser('id') userId: number,

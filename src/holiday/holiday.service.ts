@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -133,5 +134,25 @@ export class HolidayService {
       holidayRequest,
       validation,
     };
+  }
+
+  async isValidRequest(userId: number, dto: CreateHolidayDto) {
+    const userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+      where: {
+        userId_year: {
+          userId,
+          year: dto.start.getFullYear(),
+        },
+      },
+    });
+    const requestedDays = countBusinessDays(dto.start, dto.end);
+    if (requestedDays <= 0) {
+      return new BadRequestException('Requested days count is invalid');
+    }
+    if (requestedDays > userHolidays.remaining) {
+      return new ConflictException('Quota exceeded');
+    }
+
+    return null;
   }
 }
