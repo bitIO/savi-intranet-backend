@@ -56,14 +56,14 @@ export class HolidayService {
   }
 
   async getHolidaysRequests(loggedUserId: number, userId?: number) {
-    let loggedUse: User;
+    let loggedUser: User;
     if (!userId || userId !== loggedUserId) {
-      loggedUse = await this.prisma.user.findFirst({
+      loggedUser = await this.prisma.user.findFirst({
         where: {
           id: loggedUserId,
         },
       });
-      if (!loggedUse.role.includes(Role.APPROVE)) {
+      if (!loggedUser.role.includes(Role.APPROVE)) {
         throw new ForbiddenException('Access to resource denied');
       }
     }
