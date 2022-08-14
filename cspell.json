@@ -14,6 +14,7 @@
     "datasources",
     "dto",
     "fcalle",
+    "fns",
     "jwt",
     "nest",
     "nestjs",

@@ -1,11 +1,13 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { Role, Status, User } from '@prisma/client';
+import { Role, Status, User, UserHolidays } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
+import { countBusinessDays } from '../utils';
 import { CreateHolidayDto } from './dto';
 
 @Injectable()
@@ -16,16 +18,21 @@ export class HolidayService {
     try {
       const data = await this.prisma.holidayRequests.create({
         data: {
+          description: dto.description,
           end: dto.end,
+          requestedDays: countBusinessDays(dto.start, dto.end),
           requestorId: userId,
           start: dto.start,
         },
         select: {
           createdAt: true,
+          description: true,
           end: true,
           id: true,
+          requestedDays: true,
           requestorId: true,
           start: true,
+          status: true,
         },
       });
 
@@ -73,8 +80,10 @@ export class HolidayService {
         HolidayRequestsComments: true,
         HolidayRequestsValidations: true,
         createdAt: true,
+        description: true,
         end: true,
         id: true,
+        requestedDays: true,
         requestorId: true,
         start: true,
         status: true,
@@ -120,10 +129,83 @@ export class HolidayService {
         id: holidayRequestId,
       },
     });
+    let userHolidays: UserHolidays;
+    if (status === 'APPROVED') {
+      userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+        where: {
+          userId_year: {
+            userId: holidayRequest.requestorId,
+            year: holidayRequest.start.getFullYear(),
+          },
+        },
+      });
+      userHolidays = await this.prisma.userHolidays.update({
+        data: {
+          remaining: userHolidays.remaining - holidayRequest.requestedDays,
+        },
+        where: {
+          id: userHolidays.id,
+        },
+      });
+    }
 
     return {
       holidayRequest,
+      userHolidays,
       validation,
+    };
+  }
+
+  async isValidRequest(userId: number, dto: CreateHolidayDto) {
+    const userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+      where: {
+        userId_year: {
+          userId,
+          year: dto.start.getFullYear(),
+        },
+      },
+    });
+    const requestedDays = countBusinessDays(dto.start, dto.end);
+    if (requestedDays <= 0) {
+      return new BadRequestException('Requested days count is invalid');
+    }
+    if (requestedDays > userHolidays.remaining) {
+      return new ConflictException('Quota exceeded');
+    }
+
+    return null;
+  }
+
+  async deleteHolidayRequest(id: number) {
+    const holidayRequest = await this.prisma.holidayRequests.delete({
+      where: {
+        id,
+      },
+    });
+
+    let userHolidays: UserHolidays;
+    if (holidayRequest.status === 'APPROVED') {
+      userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+        where: {
+          userId_year: {
+            userId: holidayRequest.requestorId,
+            year: holidayRequest.start.getFullYear(),
+          },
+        },
+      });
+      userHolidays = await this.prisma.userHolidays.update({
+        data: {
+          remaining: userHolidays.remaining + holidayRequest.requestedDays,
+        },
+        where: {
+          id: userHolidays.id,
+        },
+      });
+    }
+
+    return {
+      holidayRequest,
+      userHolidays,
     };
   }
 }

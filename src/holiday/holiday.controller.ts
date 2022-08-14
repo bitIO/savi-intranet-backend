@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -13,6 +14,7 @@ import { GetUser, Roles } from '../auth/decorator';
 import { JwtAccessGuard, RolesGuard } from '../auth/guard';
 import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
+import { HolidaysQuotaGuard } from './guard';
 import { HolidayService } from './holiday.service';
 
 @ApiTags('holiday')
@@ -36,6 +38,7 @@ export class HolidayController {
     return this.holidayService.getHolidaysRequests(loggedUserId, userId);
   }
 
+  @UseGuards(HolidaysQuotaGuard)
   @Post()
   createHolidaysRequest(
     @GetUser('id') userId: number,
@@ -59,12 +62,22 @@ export class HolidayController {
   @Post(':holidayRequestId/validations')
   @Roles(Role.APPROVE)
   @UseGuards(RolesGuard)
-  updateHolidayRequestStatus(@Body() dto: UpdateHolidayRequestStatusDto) {
+  updateHolidayRequestStatus(
+    @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
+    @Body() dto: UpdateHolidayRequestStatusDto,
+  ) {
     return this.holidayService.updateHolidayRequestStatus(
-      dto.holidayRequestId,
+      holidayRequestId,
       dto.validatorId,
       dto.comment,
       dto.status,
     );
+  }
+
+  @Delete(':holidayRequestId')
+  removeHolidaysRequest(
+    @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
+  ) {
+    this.holidayService.deleteHolidayRequest(holidayRequestId);
   }
 }

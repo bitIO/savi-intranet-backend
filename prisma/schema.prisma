@@ -37,6 +37,7 @@ model User {
   UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
   HolidayRequestsValidations HolidayRequestsValidations[]
+  HolidayRequests            HolidayRequests[]
 
   @@map("users")
 }
@@ -46,12 +47,10 @@ model UserHolidays {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int
-  year              Int             @default(2022)
-  remaining         Int             @default(22)
-  holidayRequests   HolidayRequests @relation(fields: [holidayRequestsId], references: [id])
-  holidayRequestsId Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  year      Int  @default(2022)
+  remaining Int  @default(22)
 
   @@unique([userId, year])
   @@map("user_holidays")
@@ -62,12 +61,14 @@ model HolidayRequests {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  requestorId Int
-  start       DateTime
-  end         DateTime
-  status      Status   @default(PENDING)
+  requestor     User     @relation(fields: [requestorId], references: [id], onDelete: Cascade)
+  requestorId   Int
+  start         DateTime
+  end           DateTime
+  status        Status   @default(PENDING)
+  requestedDays Int
+  description   String?
 
-  UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
   HolidayRequestsValidations HolidayRequestsValidations[]
 
