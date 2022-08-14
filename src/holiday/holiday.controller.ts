@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -71,5 +72,12 @@ export class HolidayController {
       dto.comment,
       dto.status,
     );
+  }
+
+  @Delete(':holidayRequestId')
+  removeHolidaysRequest(
+    @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
+  ) {
+    this.holidayService.deleteHolidayRequest(holidayRequestId);
   }
 }

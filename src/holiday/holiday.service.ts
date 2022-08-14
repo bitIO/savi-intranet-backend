@@ -175,4 +175,37 @@ export class HolidayService {
 
     return null;
   }
+
+  async deleteHolidayRequest(id: number) {
+    const holidayRequest = await this.prisma.holidayRequests.delete({
+      where: {
+        id,
+      },
+    });
+
+    let userHolidays: UserHolidays;
+    if (holidayRequest.status === 'APPROVED') {
+      userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+        where: {
+          userId_year: {
+            userId: holidayRequest.requestorId,
+            year: holidayRequest.start.getFullYear(),
+          },
+        },
+      });
+      userHolidays = await this.prisma.userHolidays.update({
+        data: {
+          remaining: userHolidays.remaining + holidayRequest.requestedDays,
+        },
+        where: {
+          id: userHolidays.id,
+        },
+      });
+    }
+
+    return {
+      holidayRequest,
+      userHolidays,
+    };
+  }
 }
