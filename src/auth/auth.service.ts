@@ -39,6 +39,12 @@ class AuthService {
           hash: hash(dto.password),
         },
       });
+      await this.prisma.userHolidays.create({
+        data: {
+          userId: user.id,
+          year: new Date().getFullYear(),
+        },
+      });
 
       return user;
     } catch (error) {
