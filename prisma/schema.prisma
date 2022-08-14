@@ -37,6 +37,7 @@ model User {
   UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
   HolidayRequestsValidations HolidayRequestsValidations[]
+  HolidayRequests            HolidayRequests[]
 
   @@map("users")
 }
@@ -60,6 +61,7 @@ model HolidayRequests {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  requestor     User     @relation(fields: [requestorId], references: [id], onDelete: Cascade)
   requestorId   Int
   start         DateTime
   end           DateTime
