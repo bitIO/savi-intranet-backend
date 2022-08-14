@@ -6,6 +6,7 @@ import {
 import { Role, Status, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
+import { countBusinessDays } from '../utils';
 import { CreateHolidayDto } from './dto';
 
 @Injectable()
@@ -16,16 +17,21 @@ export class HolidayService {
     try {
       const data = await this.prisma.holidayRequests.create({
         data: {
+          description: dto.description,
           end: dto.end,
+          requestedDays: countBusinessDays(dto.start, dto.end),
           requestorId: userId,
           start: dto.start,
         },
         select: {
           createdAt: true,
+          description: true,
           end: true,
           id: true,
+          requestedDays: true,
           requestorId: true,
           start: true,
+          status: true,
         },
       });
 
@@ -73,8 +79,10 @@ export class HolidayService {
         HolidayRequestsComments: true,
         HolidayRequestsValidations: true,
         createdAt: true,
+        description: true,
         end: true,
         id: true,
+        requestedDays: true,
         requestorId: true,
         start: true,
         status: true,
