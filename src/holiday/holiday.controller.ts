@@ -61,9 +61,12 @@ export class HolidayController {
   @Post(':holidayRequestId/validations')
   @Roles(Role.APPROVE)
   @UseGuards(RolesGuard)
-  updateHolidayRequestStatus(@Body() dto: UpdateHolidayRequestStatusDto) {
+  updateHolidayRequestStatus(
+    @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
+    @Body() dto: UpdateHolidayRequestStatusDto,
+  ) {
     return this.holidayService.updateHolidayRequestStatus(
-      dto.holidayRequestId,
+      holidayRequestId,
       dto.validatorId,
       dto.comment,
       dto.status,
