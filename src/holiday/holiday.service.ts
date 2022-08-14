@@ -7,8 +7,8 @@ import {
 import { Role, Status, User, UserHolidays } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
-import { countBusinessDays } from '../utils';
 import { CreateHolidayDto } from './dto';
+import { countBusinessDays } from './utils';
 
 @Injectable()
 export class HolidayService {
