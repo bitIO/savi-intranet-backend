@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { Role, Status, User } from '@prisma/client';
+import { Role, Status, User, UserHolidays } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from '../prisma/prisma.service';
 import { countBusinessDays } from '../utils';
@@ -129,9 +129,29 @@ export class HolidayService {
         id: holidayRequestId,
       },
     });
+    let userHolidays: UserHolidays;
+    if (status === 'APPROVED') {
+      userHolidays = await this.prisma.userHolidays.findUniqueOrThrow({
+        where: {
+          userId_year: {
+            userId: holidayRequest.requestorId,
+            year: holidayRequest.start.getFullYear(),
+          },
+        },
+      });
+      userHolidays = await this.prisma.userHolidays.update({
+        data: {
+          remaining: userHolidays.remaining - holidayRequest.requestedDays,
+        },
+        where: {
+          id: userHolidays.id,
+        },
+      });
+    }
 
     return {
       holidayRequest,
+      userHolidays,
       validation,
     };
   }
