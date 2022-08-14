@@ -46,12 +46,10 @@ model UserHolidays {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int
-  year              Int             @default(2022)
-  remaining         Int             @default(22)
-  holidayRequests   HolidayRequests @relation(fields: [holidayRequestsId], references: [id])
-  holidayRequestsId Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  year      Int  @default(2022)
+  remaining Int  @default(22)
 
   @@unique([userId, year])
   @@map("user_holidays")
@@ -69,7 +67,6 @@ model HolidayRequests {
   requestedDays Int
   description   String?
 
-  UserHolidays               UserHolidays[]
   HolidayRequestsComments    HolidayRequestsComments[]
   HolidayRequestsValidations HolidayRequestsValidations[]
 
