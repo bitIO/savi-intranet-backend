@@ -14,7 +14,7 @@ import { GetUser, Roles } from '../auth/decorator';
 import { JwtAccessGuard, RolesGuard } from '../auth/guard';
 import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
 import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
-import { HolidaysQuotaGuard } from './guard';
+import { CanOperateGuard, HolidaysQuotaGuard } from './guard';
 import { HolidayService } from './holiday.service';
 
 @ApiTags('holiday')
@@ -74,6 +74,8 @@ export class HolidayController {
     );
   }
 
+  @Roles(Role.APPROVE, Role.ADMIN)
+  @UseGuards(CanOperateGuard)
   @Delete(':holidayRequestId')
   removeHolidaysRequest(
     @Param('holidayRequestId', ParseIntPipe) holidayRequestId: number,
