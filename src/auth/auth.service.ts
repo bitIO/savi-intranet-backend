@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as hash from 'object-hash';
+import { calculateRemainingDays } from '../holiday/utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 
@@ -41,6 +42,7 @@ class AuthService {
       });
       await this.prisma.userHolidays.create({
         data: {
+          remaining: calculateRemainingDays(),
           userId: user.id,
           year: new Date().getFullYear(),
         },
