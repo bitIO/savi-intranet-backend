@@ -76,6 +76,8 @@ async function createTestUsers(
       }),
     );
   }
+
+  return dbUsers;
 }
 
 export { createTestUsers, users };
