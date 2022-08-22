@@ -5,10 +5,8 @@ import * as pactum from 'pactum';
 import { AppModule } from '../../src/app.module';
 import { setupHandlers } from './pactum';
 
-let port = 4444;
-
 async function initializeApplication(dbName) {
-  port += 1;
+  const port = Math.floor(Math.random() * 1000 + 4000);
 
   setupHandlers();
 
