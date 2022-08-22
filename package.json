@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:deploy:test": "dotenv -e .env.test -- prisma migrate deploy",
+    "prisma:deploy:test": "sh ./scripts/prisma-deploy-test.sh",
     "prisma:studio": "prisma studio",
     "prisma:studio:test": "dotenv -e .env.test -- prisma studio",
     "db:rm": "docker compose rm db -s -f -v",
@@ -84,7 +84,7 @@
     "lint-staged": "13.0.3",
     "markdownlint": "0.26.2",
     "markdownlint-cli": "0.32.1",
-    "pactum": "3.1.13",
+    "pactum": "3.1.14",
     "prettier": "2.7.1",
     "prisma": "4.2.0",
     "semantic-release": "19.0.3",

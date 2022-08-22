@@ -167,10 +167,14 @@ export class HolidayService {
     });
     const requestedDays = countBusinessDays(dto.start, dto.end);
     if (requestedDays <= 0) {
-      return new BadRequestException('Requested days count is invalid');
+      return new BadRequestException(
+        `Requested days count ${requestedDays} is invalid`,
+      );
     }
     if (requestedDays > userHolidays.remaining) {
-      return new ConflictException('Quota exceeded');
+      return new ConflictException(
+        `Quota exceeded - ${requestedDays} > userHolidays.remaining`,
+      );
     }
 
     return null;
