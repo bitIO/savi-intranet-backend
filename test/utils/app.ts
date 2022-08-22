@@ -3,11 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
 import { AppModule } from '../../src/app.module';
+import { setupHandlers } from './pactum';
 
 let port = 4444;
 
 async function initializeApplication(dbName) {
   port += 1;
+
+  setupHandlers();
 
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
