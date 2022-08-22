@@ -44,7 +44,7 @@ class AuthController {
   }
 
   @UseGuards(JwtAccessGuard)
-  @Post('logout')
+  @Post('signout')
   logout(@GetUser() user: User) {
     return this.authService.logout(user);
   }
