@@ -12,8 +12,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { GetUser, Roles } from '../auth/decorator';
 import { JwtAccessGuard, RolesGuard } from '../auth/guard';
-import { CommentHolidayRequestDto, CreateHolidayDto } from './dto';
-import { UpdateHolidayRequestStatusDto } from './dto/update-holiday-request-status.dto';
+import {
+  CommentHolidayRequestDto,
+  CreateHolidayDto,
+  UpdateHolidayRequestStatusDto,
+} from './dto';
 import { CanOperateGuard, HolidaysQuotaGuard } from './guard';
 import { HolidayService } from './holiday.service';
 
