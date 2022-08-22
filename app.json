@@ -1,0 +1,29 @@
+{
+  "addons": ["heroku-postgresql"],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "description": "Savi intranet backend",
+  "env": {
+    "NODE_ENV": {
+      "description": "Environment [production/development]",
+      "value": "production"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "image": "heroku/nodejs",
+  "logo": "https://app.tooljet.io/assets/images/logo.svg",
+  "name": "Savi Intranet Backend",
+  "repository": "https://github.com/bitIO/savi-intranet-backend",
+  "scripts": {
+    "predeploy": "npm install && npm run build"
+  },
+  "success_url": "/",
+  "website": "https://savispain.es/"
+}
