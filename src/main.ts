@@ -29,6 +29,6 @@ async function bootstrap() {
     customSiteTitle: 'Savi - Intranet API - Swagger',
   });
 
-  await app.listen(3333);
+  app.listen(process.env.PORT || 3333, '0.0.0.0');
 }
 bootstrap();
