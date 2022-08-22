@@ -15,7 +15,7 @@ describe('APP Acceptance - User', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    app = await initializeApplication('user');
+    app = await initializeApplication('acceptance-user');
     await cleanDatabase(app);
     await createTestUsers(app, 22);
 
