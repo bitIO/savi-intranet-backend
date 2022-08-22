@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { calculateRemainingDays } from '../holiday/utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpsertUserHolidaysDto } from './dto/upsert-user-holidays.dto';
+import { UpsertUserHolidaysDto } from './dto';
 
 @Injectable()
 export class UserHolidaysService {

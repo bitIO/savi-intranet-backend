@@ -4,8 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as hash from 'object-hash';
-import { calculateRemainingDays } from '../holiday/utils';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserHolidaysService } from '../user-holidays/user-holidays.service';
 import { AuthDto } from './dto';
 
 @Injectable()
@@ -14,6 +14,7 @@ class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private userHolidays: UserHolidaysService,
   ) {}
 
   async signIn(dto: AuthDto) {
@@ -40,12 +41,8 @@ class AuthService {
           hash: hash(dto.password),
         },
       });
-      await this.prisma.userHolidays.create({
-        data: {
-          remaining: calculateRemainingDays(),
-          userId: user.id,
-          year: new Date().getFullYear(),
-        },
+      await this.userHolidays.create({
+        userId: user.id,
       });
 
       return user;
