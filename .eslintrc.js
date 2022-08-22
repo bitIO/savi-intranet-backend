@@ -46,6 +46,7 @@ module.exports = {
       },
     ],
     'newline-before-return': 'error',
+    'no-multiple-empty-lines': 'error',
     'object-curly-newline': [
       'error',
       {

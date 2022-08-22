@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as hash from 'object-hash';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserHolidaysService } from '../user-holidays/user-holidays.service';
 import { AuthDto } from './dto';
 
 @Injectable()
@@ -13,6 +14,7 @@ class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private userHolidays: UserHolidaysService,
   ) {}
 
   async signIn(dto: AuthDto) {
@@ -38,6 +40,9 @@ class AuthService {
           email: dto.email,
           hash: hash(dto.password),
         },
+      });
+      await this.userHolidays.create({
+        userId: user.id,
       });
 
       return user;
