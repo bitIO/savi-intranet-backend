@@ -7,22 +7,46 @@ import { UpsertUserHolidaysDto } from './dto';
 export class UserHolidaysService {
   constructor(private prisma: PrismaService) {}
 
-  upsert(dto: UpsertUserHolidaysDto) {
-    return this.prisma.userHolidays.upsert({
-      create: {
-        remaining: calculateRemainingDays(),
-        userId: dto.userId,
-        year: (dto.date || new Date()).getFullYear(),
+  getByUser(userId: number) {
+    return this.prisma.userHolidays.findMany({
+      where: {
+        userId,
       },
-      update: {
+    });
+  }
+
+  getByUserYear(userId: number, year: number) {
+    return this.prisma.userHolidays.findUnique({
+      where: {
+        userId_year: {
+          userId,
+          year,
+        },
+      },
+    });
+  }
+
+  create(dto: UpsertUserHolidaysDto) {
+    return this.prisma.userHolidays.create({
+      data: {
         remaining: calculateRemainingDays(),
         userId: dto.userId,
-        year: (dto.date || new Date()).getFullYear(),
+        year: dto.year || new Date().getFullYear(),
+      },
+    });
+  }
+
+  update(dto: UpsertUserHolidaysDto) {
+    return this.prisma.userHolidays.update({
+      data: {
+        remaining: calculateRemainingDays(),
+        userId: dto.userId,
+        year: dto.year || new Date().getFullYear(),
       },
       where: {
         userId_year: {
           userId: dto.userId,
-          year: (dto.date || new Date()).getFullYear(),
+          year: dto.year || new Date().getFullYear(),
         },
       },
     });
