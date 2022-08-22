@@ -41,7 +41,7 @@ describe('APP Acceptance - User', () => {
     await pactum
       .spec()
       .post('/auth/signin')
-      .withBody(credentials[0])
+      .withBody(credentials[2])
       .expectStatus(202)
       .stores('adminAt', 'access_token');
   });
