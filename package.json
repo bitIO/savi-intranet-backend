@@ -34,12 +34,12 @@
     "test:e2e:watch": "dotenv -e .env.test -- jest --verbose --watch --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "9.0.8",
+    "@nestjs/common": "9.0.9",
     "@nestjs/config": "2.2.0",
-    "@nestjs/core": "9.0.8",
+    "@nestjs/core": "9.0.9",
     "@nestjs/jwt": "9.0.0",
     "@nestjs/passport": "9.0.0",
-    "@nestjs/platform-express": "9.0.8",
+    "@nestjs/platform-express": "9.0.9",
     "@nestjs/swagger": "6.0.5",
     "@prisma/client": "4.2.1",
     "class-transformer": "0.5.1",
